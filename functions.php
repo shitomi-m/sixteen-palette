@@ -2,7 +2,7 @@
 
 // CSS・Scriptの読み込み
 function my_enqueue_scripts(){
-    wp_enqueue_style( 'aaa-style', get_template_directory_uri() . '/assets/style.css' );
+    wp_enqueue_style( 'main-style', get_template_directory_uri() . '/assets/style.css' );
 }
 
 // add_action( 
@@ -24,12 +24,25 @@ register_nav_menus(
 );
 
 
+// カテゴリーの中身を表示
 // get_the_category()   カテゴリー情報をオブジェクトの配列形式で取得する。引数で投稿IDを指定できる
 // is_singular()        個別の投稿を表示中かを判定。引数で判定する投稿タイプを指定できる
 // is_page()            固定ページを表示中かを判定
 function print_get_the_category(){
     $category_obj = get_the_category();
     for ($i=0; $i < count( $category_obj ); $i++) { 
-        return $category_obj[$i] . "\n";
+        return $category_obj[$i];
+    }
+}
+
+
+// タイトルの表示
+// 投稿[post]の時はカテゴリー名を取得
+function get_title(){
+    if ( is_singular( 'post' ) ){
+        $category_obj = get_the_category();
+        return $category_obj[0]->name;
+    } else {
+        return get_the_title();
     }
 }
