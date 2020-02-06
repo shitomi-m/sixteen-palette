@@ -1,11 +1,5 @@
         <article>
           <h1>Blog</h1>
-
-          <?php 
-          if ( have_posts() ):
-            while ( have_posts() ): the_post();
-          ?>
-
           <div class="card blog">
             <div class="card-cell">
               <h2><?php the_title(); ?></h2>
@@ -26,10 +20,4 @@
               <a href="#"></a>
             </div>
           </div>
-
-          <?php 
-            endwhile;
-          endif;
-          ?>
-
         </article>

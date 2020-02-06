@@ -38,11 +38,15 @@ function print_get_the_category(){
 
 // タイトルの表示
 // 投稿[post]の時はカテゴリー名を取得
+// カテゴリー一覧ページの時は現在のカテゴリーを出力
 function get_title(){
     if ( is_singular( 'post' ) ){
         $category_obj = get_the_category();
         return $category_obj[0]->name;
-    } else {
+    } elseif ( is_category() ){
+        return single_cat_title();
+    } 
+    else {
         return get_the_title();
     }
 }
