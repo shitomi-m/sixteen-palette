@@ -50,3 +50,10 @@ function get_title(){
         return get_the_title();
     }
 }
+
+
+// アイキャッチ画像を利用できるように設定　※ハイフン！！
+add_theme_support( 'post-thumbnails' );
+
+// 親ページ用の画像サイズ設定
+// add_image_size( 'parent', 200, 100, true );
