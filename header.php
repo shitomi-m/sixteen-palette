@@ -21,9 +21,11 @@
           $args = array (
             'theme_location' => 'place_global',
             'container'      => false,
+            'depth'          => 0,
           );
           wp_nav_menu( $args );
           ?>
 
+          <label for="menu-item-34"></label>
         </nav>
       </header>

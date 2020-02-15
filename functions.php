@@ -55,5 +55,20 @@ function get_title(){
 // アイキャッチ画像を利用できるように設定　※ハイフン！！
 add_theme_support( 'post-thumbnails' );
 
-// 親ページ用の画像サイズ設定
-// add_image_size( 'parent', 200, 100, true );
+// 画像のサイズを設定
+add_image_size( 'child', 300, 100, true );
+
+add_image_size( 'page', 400, 200, true );
+
+// 画像を出力する関数の作成
+// 固定ページで呼び出された時は、add_image_size　'page' で設定したサイズで出力(登録は管理画面から)
+// カテゴリーがブログか、記事の個別ページの場合はassetsに入っている画像のURLを出力して表示
+function get_main_img(){
+    if ( is_page() ){
+        return get_post_thumbnail( 'page' );
+    } elseif ( is_home() ){
+        return '<img src="' . get_template_directory_uri() . 'assets/images/home.png" />';
+    } elseif ( is_category( 'blog' ) || is_singular( 'post' ) ){
+        return '<img src="' . get_template_directory_uri() . 'assets/images/blog.png" />';
+    }
+}
