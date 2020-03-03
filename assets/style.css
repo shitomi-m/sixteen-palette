@@ -87,10 +87,18 @@ header {
 
 --------------------------------- */
 /* global------------------------ */
-/* .sub-menu {
+.header-navi a {
+    display: block;
+}
+.sub-menu {
     display: none;
-} */
-
+}
+.menu-item a:hover {
+    color: #CF6052;
+}
+.sub-menu.show {
+    display: block;
+}
 
 /* ---------------------------------
     

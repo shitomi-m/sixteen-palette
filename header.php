@@ -20,12 +20,11 @@
           <?php
           $args = array (
             'theme_location' => 'place_global',
-            'container'      => false,
-            'depth'          => 0,
+            'container'      => false,              // 囲みのdivをつけるか
+            'depth'          => 0,                  // 0は全ての階層を表示する
           );
           wp_nav_menu( $args );
           ?>
 
-          <label for="menu-item-34"></label>
         </nav>
       </header>
