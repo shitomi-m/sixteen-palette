@@ -27,14 +27,25 @@ console.log ( 'Hello js' );
 // }
 
 window.onload = function(){
+
+    // 親を取得
     let gNav_parent = document.getElementById( 'menu-item-34' );
+    // 子要素を取得
     let subMenu = gNav_parent.children;
     
+    // htmlコレクションを表示
     console.log( subMenu );
+    // htmlコレクション1のulのクラスネーム、0はaタグ
     console.log( subMenu[1].className );
     
     function showMenu (){
-        subMenu[1].classList.add( 'show' );
+        let hav_show = subMenu[1].classList.contains('show');
+        console.log(hav_show);
+        if ( hav_show ){
+            subMenu[1].classList.remove( 'show' );
+        } else {
+            subMenu[1].classList.add( 'show' );
+        }
     }
     gNav_parent.addEventListener( 'mouseenter', showMenu, false )
 }
