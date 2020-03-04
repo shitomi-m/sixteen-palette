@@ -52,7 +52,6 @@ function get_title(){
     }
 }
 
-
 // アイキャッチ画像を利用できるように設定　※ハイフン！！
 add_theme_support( 'post-thumbnails' );
 
@@ -73,3 +72,18 @@ function get_main_img(){
         return '<img src="' . get_template_directory_uri() . 'assets/images/blog.png" />';
     }
 }
+
+// All in One Sub Navi Wedgetの機能を有効化
+function theme_widgets_init(){
+    $args = array(
+        'name'          =>  'サイドバー用',                 // 管理画面に表示される
+        'id'            =>  'side-bar-area',          // ウィジットエリアのID　呼び出しに必要
+        'description'   =>  '固定ページのサイドバー',       // ウィジットエリアの説明　管理画面に表示される
+        'before_widget' =>  '<div class="card-cell">',  //ウィジットの前後に出力するテキスト
+        'after_widget'  =>  '</div>',
+        'before_title'  =>  '<h3>',                     // タイトルの前後に出力されるテキスト
+        'after_title'   =>  '</h3>',
+    );
+    register_sidebar( $args );
+}
+add_action( 'widgets_init', 'theme_widgets_init' );

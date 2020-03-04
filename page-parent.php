@@ -1,4 +1,5 @@
 <?php get_header(); ?>
+<!-- page-parent.phpはページテンプレート（スラッグ： parent） -->
       <div class="flex-container">
         <article>
           <h1>parent</h1>
