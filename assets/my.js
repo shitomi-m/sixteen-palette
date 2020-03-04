@@ -26,28 +26,29 @@ console.log ( 'Hello js' );
 //      gNav_parent.addEventListener( 'click', showMenu )
 // }
 
+// クラスをつけたり消したりする関数
 window.onload = function(){
 
-    // 親を取得
-    let gNav_parent = document.getElementById( 'menu-item-34' );
-    // 子要素を取得
-    let subMenu = gNav_parent.children;
+    // ホバーした要素がmenu-item-has-childrenを検索（下層ページを持つ要素全てに対応）
+    let gNav_parent = document.getElementsByClassName( 'menu-item-has-children' );
+    console.log( gNav_parent );
     
-    // htmlコレクションを表示
-    console.log( subMenu );
-    // htmlコレクション1のulのクラスネーム、0はaタグ
-    console.log( subMenu[1].className );
-    
-    function showMenu (){
-        let hav_show = subMenu[1].classList.contains('show');
-        console.log(hav_show);
-        if ( hav_show ){
-            subMenu[1].classList.remove( 'show' );
-        } else {
-            subMenu[1].classList.add( 'show' );
-        }
+    // menu-item-has-children
+    for (let i = 0; i < gNav_parent.length; i++) {
+        // thisはホバーされたオブジェクト
+        gNav_parent[i].addEventListener( 'mouseenter', () => {
+            let children = this.children;
+            console.log(children)
+
+            let hav_show = children[1].classList.contains( 'show' );
+            if ( hav_show ){
+                children[1].classList.remove( 'show' );
+            } else {
+                children[1].classList.add( 'show' );
+            }
+        })
     }
-    gNav_parent.addEventListener( 'mouseenter', showMenu, false )
+
 }
 
 // window.addEventListener('load', function() {
