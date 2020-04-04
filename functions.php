@@ -87,3 +87,218 @@ function theme_widgets_init(){
     register_sidebar( $args );
 }
 add_action( 'widgets_init', 'theme_widgets_init' );
+
+
+/**
+ * Adds Foo_Widget widget.
+ */
+class Mk_Link_Widget extends WP_Widget {
+
+	/**
+	 * WordPress でウィジェットを登録
+	 */
+	function __construct() {
+		parent::__construct(
+			'mk_link_widget', // Base ID
+			__( 'TOPリンク集　作成用', 'top_links' ), // Name
+			array( 'description' => __( 'ウィジェット「TOPリンク集　作成用」です。', 'top_links' ), ) // Args
+		);
+	}
+
+	/**
+	 * バックエンドのウィジェットフォーム
+	 *
+	 * @see WP_Widget::form()
+	 *
+	 * @param array $instance データベースからの前回保存された値
+	 */
+	public function form( $instance ) {
+        $title = ! empty( $instance['title'] ) ? $instance['title'] : __( '', 'top_links' );
+        $link_url = ! empty( $instance['link_url'] ) ? $instance['link_url'] : __( '', 'top_links' );
+        $link_img = ! empty( $instance['link_img'] ) ? $instance['link_img'] : __( '', 'top_links' );
+        
+		?>
+		<p>
+            <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'タイトル:' ); ?></label> 
+            <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id( 'link_url' ); ?>"><?php _e( 'URL:' ); ?></label> 
+            <input class="widefat" id="<?php echo $this->get_field_id( 'link_url' ); ?>" name="<?php echo $this->get_field_name( 'link_url' ); ?>" type="text" value="<?php echo esc_attr( $link_url ); ?>">
+		</p>
+        <p>
+            <label for="<?php echo $this->get_field_id( 'link_img' ); ?>"><?php _e( '画像:' ); ?></label> 
+            <input class="fixed-image-url" id="<?php echo $this->get_field_id('link_img'); ?>" name="<?php echo $this->get_field_name('link_img'); ?>" type="text" value="<?php echo $link_img; ?>">
+            <button type="button" class="fixed-select-image">画像を選択</button>
+            <button type="button" class="fixed-delete-image" <?php echo $show_img; ?>>画像を削除</button>
+            <!-- <input name="mediaid" type="text" value="" />
+            <input type="button" name="media" value="選択" />
+            <input type="button" name="media-clear" value="クリア" /> -->
+            <div id="media"></div>
+        </p>
+
+        <!-- メディアライブラリを使う -->
+        <script>
+      jQuery(document).ready(function($) {
+
+        var frame;
+        const placeholder = jQuery('.fixed-image-text');
+        const imageUrl = jQuery('.fixed-image-url');
+        const imageView = jQuery('.fixed-image-view');
+        const deleteImage = jQuery('.fixed-delete-image');
+
+        jQuery('.fixed-select-image').on('click', function(e){
+          e.preventDefault();
+
+          if ( frame ) {
+            frame.open();
+            return;
+          }
+
+          frame = wp.media({
+            title: '画像を選択',
+            library: {
+              type: 'image'
+            },
+            button: {
+              text: '画像を追加する'
+            },
+            multiple: false
+          });
+
+          frame.on('select', function(){
+            var images = frame.state().get('selection');
+            images.each(function(file) {
+              placeholder.css('display', 'none');
+              imageUrl.val(file.toJSON().url);
+              imageView.attr('src', file.toJSON().url).css('display', 'block');
+              deleteImage.css('display', 'inline-block');
+            });
+            imageUrl.trigger('change');
+          });
+
+          frame.open();
+        });
+
+        jQuery('.fixed-delete-image').off().on('click', function(e){
+          e.preventDefault();
+          imageUrl.val('');
+          imageView.css('display', 'none');
+          deleteImage.css('display', 'none');
+          imageUrl.trigger('change');
+        });
+
+      });
+    </script>
+        <!-- <script>
+            (function ($) {
+        
+                var custom_uploader;
+
+                $("input:button[name=media]").click(function(e) {
+
+                    e.preventDefault();
+
+                    if (custom_uploader) {
+                        custom_uploader.open();
+                        return;
+                    }
+
+                    custom_uploader = wp.media({
+                        title: "Choose Image",
+                        /* ライブラリの一覧は画像のみにする */
+                        library: {
+                            type: "image"
+                        },
+                        button: {
+                            text: "Choose Image"
+                        },
+                        /* 選択できる画像は 1 つだけにする */
+                        multiple: false
+                    });
+
+                    custom_uploader.on("select", function() {
+                        var images = custom_uploader.state().get("selection");
+                        /* file の中に選択された画像の各種情報が入っている */
+                        images.each(function(file){
+                            /* テキストフォームと表示されたサムネイル画像があればクリア */
+                            $("input:text[name=mediaid]").val("");
+                            $("#media").empty();
+                            /* テキストフォームに画像の ID を表示 */
+                            $("input:text[name=mediaid]").val(file.id);
+                            /* プレビュー用に選択されたサムネイル画像を表示 */
+                            $("#media").append('<img src="'+file.attributes.sizes.thumbnail.url+'" />');
+                        });
+                    });
+                    custom_uploader.open();
+                });
+
+                /* クリアボタンを押した時の処理 */
+                $("input:button[name=media-clear]").click(function() {
+                    $("input:text[name=mediaid]").val("");
+                    $("#media").empty();
+                });
+            })(jQuery);
+        </script> -->
+		<?php 
+    }
+    
+    /**
+	 * ウィジェットのフロントエンド表示
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param array $args     ウィジェットの引数
+	 * @param array $instance データベースの保存値
+	 */
+	public function widget( $args, $instance ) {
+        $title = ! empty( $instance['title'] ) ? $instance['title'] : __( '', 'top_links' );
+        $link_url = ! empty( $instance['link_url'] ) ? $instance['link_url'] : __( '', 'top_links' );
+        $link_img = ! empty( $instance['link_img'] ) ? $instance['link_img'] : __( '', 'top_links' );
+
+        // ウィジェットエリアの定義（開始タグ）
+        echo $args['before_widget'];
+        
+        // 表示内容
+		if ( ! empty( $instance['title'] ) ) {
+			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
+		}
+        if ( ! empty( $instance['link_url'] ) ) {
+            echo '<a href="' . $instance['link_url'] . '">' . $instance['link_url'] . '</a>';
+        }
+        if ( ! empty( $instance['link_img'] ) ) {
+            echo '<img src="' . $link_img . '" />';
+        }else{
+            echo $link_img;
+        }
+
+        // ウィジェットエリアの定義（終了タグ）
+		echo $args['after_widget'];
+	}
+
+	/**
+	 * ウィジェットフォームの値を保存用にサニタイズ
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance 保存用に送信された値
+	 * @param array $old_instance データベースからの以前保存された値
+	 *
+	 * @return array 保存される更新された安全な値
+	 */
+	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['link_url'] = ( ! empty( $new_instance['link_url'] ) ) ? strip_tags( $new_instance['link_url'] ) : '';
+        $instance['link_img'] = ( ! empty( $new_instance['link_img'] ) ) ? strip_tags( $new_instance['link_img'] ) : '';
+        
+		return $instance;
+	}
+
+} // class Mk_Link_Widget
+
+// Mk_Link_Widget ウィジェットを登録
+function register_mk_link_widget() {
+    register_widget( 'Mk_Link_Widget' );
+}
+add_action( 'widgets_init', 'register_mk_link_widget' );

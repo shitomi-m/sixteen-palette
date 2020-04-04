@@ -12,13 +12,38 @@
 
           <div class="pager">
             <ul class="pagenation">
-              <li class="prev"><a href="#"><span>PREV</span></a></li>
-              <li><a href="#"><span>1</span></a></li>
-              <li><a href="#"><span>2</span></a></li>
-              <li><a href="#"><span>3</span></a></li>
-              <li><a href="#"><span>4</span></a></li>
-              <li><a href="#"><span>5</span></a></li>
-              <li class="next"><a href="#"><span>NEXT</span></a></li>
+              <!-- プラグインを使ったページャー -->
+              <!-- <?php 
+              if (function_exists( 'page_navi' )):
+                page_navi();
+              endif;
+              ?> -->
+
+              <?php 
+                global $wp_query;
+
+                $args = array(
+                  'bace'        => 'http://example.com/all_posts.php%_%',
+                  'format'      => '?paged=%#%',
+                  'current'     => max( 1, get_query_var('paged') ),
+                  'total'       => $wp_query->max_num_pages,
+                  'mid_size'    => 2,
+                  'prev_text'   => '<< prev',
+                  'next_text'   => 'next >>',
+                  'type'        => 'list',
+                );
+                echo paginate_links( $args );
+                
+                // 簡単な方
+                // $args = array(
+                //   'mid_size'    => 2,
+                //   'prev_text'   =>  '<< prev',
+                //   'next_text'   => 'next >>',
+                //   'screen_reader_text'    => 'ページャー',
+                // );
+                // the_posts_pagination( $args );
+              ?>
+
             </ul>
           </div>
         </article>

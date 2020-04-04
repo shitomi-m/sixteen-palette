@@ -6,8 +6,24 @@
         </div>
       </div>
 
+      <div class="index">
+        <?php
+        // カスタム投稿タイプを指定
+        if( get_field('text') ) :
+          the_field('text');
+          endif;
+        
+   
+
+        the_field( 'top_title' );
+
+  
+
+        ?>
+      </div>
+
       <ul>
-        <li id="test">oooop<a herf="#" class="tes">testes</a> </li>
+        <li id="test">oooop!!<a herf="#" class="tes">testes</a> </li>
       </ul>
       
       <div class="announce">
