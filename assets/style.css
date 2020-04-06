@@ -446,3 +446,11 @@ ul.pagenation {
     font-size: 35px;
     text-align: center;
 }
+
+
+@media print{
+    * {
+        -webkit-print-color-adjust: exact;
+        background: #CF6052;
+    }
+  }
