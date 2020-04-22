@@ -1,0 +1,155 @@
+
+https://www.hungerfree.net/category/activities_report/　の
+検索フォーム部分のソースです。
+-------------------------------------------------------
+<form method="get" action="<?php bloginfo( 'url' ); ?>">
+    <select name='cat' id='cat' class='postform' >
+      <option value='0'>国選択</option>
+      <option class="level-0" value="15">バングラデシュ</option>
+      <option class="level-0" value="17">べナン</option>
+      <option class="level-0" value="18">ブルキナファソ</option>
+      <option class="level-0" value="19">ウガンダ</option>
+      <option class="level-0" value="20">日本</option>
+    </select>
+     <select name='tag' id='tag'>
+        <option value="" selected="selected">カテゴリー選択</option>
+        <option value="development">地域をつくる</option>
+        <option value="nutrition">-栄養改善</option>
+        <option value="education">-教育</option>
+        <option value="health">-保健衛生</option>
+        <option value="income">-収入創出</option>
+        <option value="gender">-ジェンダー平等の推進</option>
+        <option value="environment">-環境</option>
+        <option value="advocacy">しくみを変える</option>
+        <option value="awareness">気づきをつくる</option>
+        <option value="youth">若い力を育てる</option>
+        <option value="news_topics">ニュース＆トピックス</option>
+        <option value="other">その他</option>
+      </select>
+     <span>キーワード<input name="s" id="s" type="text" />
+    <input id="submit" type="submit" value="検索" /></span>
+</form>
+-------------------------------------------------------
+国選択＝カテゴリー、カテゴリー選択＝タグ
+上記が増えないことと、クライアントサイドが並び順にこだわったため自動出力は諦め、手打ちした状態です。
+自動出力させるならば下記で大丈夫かも
+-------------------------------------------------------
+<form method="get" action="<?php bloginfo('url'); ?>">
+  <?php wp_dropdown_categories('show_option_none=カテゴリを選択'); ?>
+  <?php $tags = get_tags(); if ( $tags ) : ?>
+  <select name="tag">
+    <option value="" class="selected">タグを選択</option>
+    <?php foreach ( $tags as $tag ): ?>
+    <option value="<?php echo esc_html( $tag->slug);  ?>"><?php echo esc_html( $tag->name ); ?></option>
+    <?php endforeach; ?>
+  </select>
+  <?php endif; ?>
+  <input name="s" id="s" type="text" placeholder="キーワードを入力">
+  <input id="submit" type="submit" value="検索">
+</form>
+-------------------------------------------------------
+
+検索範囲を広げるためにfunctions.phpにこちらも追記してます。
+-----------------------------------------------------
+function custom_search($search, $wp_query) {
+    global $wpdb;
+  
+    //サーチページ以外だったら終了
+    if (!$wp_query->is_search)
+        return $search;
+    if (!isset($wp_query->query_vars))
+        return $search;
+  
+    // ユーザー名とか、タグ名・カテゴリ名も検索対象に
+    $search_words = explode(' ', isset($wp_query->query_vars['s']) ? $wp_query->query_vars['s'] : '');
+    if ( count($search_words) > 0 ) {
+        $search = '';
+        foreach ( $search_words as $word ) {
+            if ( !empty($word) ) {
+                $search_word = $wpdb->escape("%{$word}%");
+                $search .= " AND (
+ {$wpdb->posts}.post_title LIKE '{$search_word}'
+ OR {$wpdb->posts}.post_content LIKE '{$search_word}'
+ OR {$wpdb->posts}.post_author IN (
+   SELECT distinct ID
+   FROM {$wpdb->users}
+   WHERE display_name LIKE '{$search_word}'
+   )
+ OR {$wpdb->posts}.ID IN (
+   SELECT distinct r.object_id
+   FROM {$wpdb->term_relationships} AS r
+   INNER JOIN {$wpdb->term_taxonomy} AS tt ON r.term_taxonomy_id = tt.term_taxonomy_id
+   INNER JOIN {$wpdb->terms} AS t ON tt.term_id = t.term_id
+   WHERE t.name LIKE '{$search_word}'
+     OR t.slug LIKE '{$search_word}'
+     OR tt.description LIKE '{$search_word}'
+   )
+) ";
+            }
+        }
+    }
+  
+    return $search;
+}
+-----------------------------------------------------------------
+2017年に作成したサイトなので詳細はちょっと忘れてます。（すみません）
+
+
+カスタムフィールドを検索対象にしたい場合は下記を使ってます、。（functons.php）
+EASTのサイトなどで実装中
+-----------------------------------------------------------------
+/**
+ * カスタムフィールドを検索対象に含めます。(「-キーワード」のようなNOT検索にも対応します)
+ */
+function posts_search_custom_fields( $orig_search, $query ) {
+	if ( $query->is_search() && $query->is_main_query() && ! is_admin() ) {
+		// 4.4のWP_Query:: parse_search()の処理を流用しています。(検索語の分割処理などはすでにquery_vars上にセット済のため省きます)
+		global $wpdb;
+		$q = $query->query_vars;
+		$n = ! empty( $q['exact'] ) ? '' : '%';
+		$searchand = '';
+
+		foreach ( $q['search_terms'] as $term ) {
+			$include = '-' !== substr( $term, 0, 1 );
+			if ( $include ) {
+				$like_op  = 'LIKE';
+				$andor_op = 'OR';
+			} else {
+				$like_op  = 'NOT LIKE';
+				$andor_op = 'AND';
+				$term     = substr( $term, 1 );
+			}
+			$like = $n . $wpdb->esc_like( $term ) . $n;
+			// カスタムフィールド用の検索条件を追加します。
+			$search .= $wpdb->prepare( "{$searchand}(($wpdb->posts.post_title $like_op %s) $andor_op ($wpdb->posts.post_content $like_op %s) $andor_op (custom.meta_value $like_op %s))", $like, $like, $like );
+			$searchand = ' AND ';
+		}
+		if ( ! empty( $search ) ) {
+			$search = " AND ({$search}) ";
+			if ( ! is_user_logged_in() )
+				$search .= " AND ($wpdb->posts.post_password = '') ";
+		}
+		return $search;
+	}
+	else {
+		return $orig_search;
+	}
+}
+add_filter( 'posts_search', 'posts_search_custom_fields', 10, 2 );
+/**
+ * カスタムフィールド検索用のJOINを行います。
+ */
+function posts_join_custom_fields( $join, $query ) {
+	if ( $query->is_search() && $query->is_main_query() && ! is_admin() ) {
+		// group_concat()したmeta_valueをJOINすることでレコードの重複を除きつつ検索しやすくします。
+		global $wpdb;
+		$join .= " INNER JOIN ( ";
+		$join .= " SELECT post_id, group_concat( meta_value separator ' ') AS meta_value FROM $wpdb->postmeta ";
+		// $join .= " WHERE meta_key IN ( 'test' ) ";
+		$join .= " GROUP BY post_id ";
+		$join .= " ) AS custom ON ($wpdb->posts.ID = custom.post_id) ";
+	}
+	return $join;
+}
+add_filter( 'posts_join', 'posts_join_custom_fields', 10, 2 );
+------------------------------------------------------------

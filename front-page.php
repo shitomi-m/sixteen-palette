@@ -5,6 +5,43 @@
 
         </div>
       </div>
+      <div class="search01">
+        <h1>search01</h1>
+        <!-- searchform.php actionにサイトURI -->
+        <form method="get" action="<?php bloginfo( 'url' ); ?>">
+          <select name='cat' id='cat' class='postform' >
+            <option value='0'>category-select</option>
+            <option class="level-0" value="1">-BLOG</option>
+            <option class="level-0" value="4">-NEW</option>
+          </select>
+          <select name='tag' id='tag'>
+            <option value="" selected="selected">tag-select</option>
+            <option value="tag1">-tag1</option>
+            <option value="tag2">-tag2</option>
+          </select>
+          <!-- name="s" id="s" -->
+          <span>キーワード<input name="s" id="s" type="text" />
+          <input id="submit" type="submit" value="検索" /></span>
+        </form>
+      </div>
+      <div class="search02">
+      <h1>search02</h1>
+        <form method="get" action="<?php bloginfo('url'); ?>">
+        <!-- 送信ボタンのないセレクトボックス（ドロップダウンメニューなど）を使ったカテゴリーリストを表示します。 -->
+        <!-- 引数に$argsを設定可能　下記はクリックすると 'カテゴリーなし' を指定できるテキストのみ指定 -->
+          <?php wp_dropdown_categories('show_option_none=カテゴリを選択'); ?>
+          <?php $tags = get_tags(); if ( $tags ) : ?>
+            <select name="tag">
+              <option value="" class="selected">タグを選択</option>
+              <?php foreach ( $tags as $tag ): ?>
+                <option value="<?php echo esc_html( $tag->slug);  ?>"><?php echo esc_html( $tag->name ); ?></option>
+              <?php endforeach; ?>
+            </select>
+          <?php endif; ?>
+            <input name="s" id="s" type="text" placeholder="キーワードを入力">
+            <input id="submit" type="submit" value="検索">
+        </form>
+      </div>
 
       <div class="index">
         <?php
